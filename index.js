@@ -2,6 +2,8 @@ const express = require("express");
 const cors = require("cors");
 const { pool, query } = require("./db");
 const app = express();
+app.use(cors());
+app.use(express.json());
 const port = process.env.PORT || 4000;
 
 async function run() {
@@ -36,6 +38,15 @@ async function run() {
       }
       const result=await query(q.text,q.values);
       res.json(result.rows);
+    })
+    app.get('/user/:usertype',async(req,res)=>{
+      const userType=req.params.usertype;
+      const userquery={
+        name:'count-user',
+        text:`SELECT * from ${userType}`,
+      }
+      const result=await query(userquery.text);
+      res.json(result.rows.length);
     })
     app.get('/categories',async(req,res)=>{
       const q={
