@@ -3,10 +3,10 @@ const cors = require("cors");
 const { pool, query } = require("./db");
 const { queries } = require("./queries");
 const app = express();
-const port = process.env.PORT || 4000;
-
 app.use(cors());
 app.use(express.json());
+const port = process.env.PORT || 4000;
+
 
 async function run() {
   try {
@@ -19,6 +19,12 @@ async function run() {
       res.json(result.rows);
     });
 
+    app.post('/user',async(req,res)=>{
+      const user=req.body;
+    const { text, values } = queries.user(user);
+  const result = await query(text, values);
+      res.send(result.rows[0]);
+    })
 
     app.get('/courses',async(req,res)=>{
       
@@ -35,10 +41,25 @@ async function run() {
     })
 
 
+
+
+    app.get('/user/:usertype',async(req,res)=>{
+      const userType=req.params.usertype;
+      const userquery={
+        name:'count-user',
+        text:`SELECT * from ${userType}`,
+      }
+      const result=await query(userquery.text);
+      res.json(result.rows.length);
+    })
+
+
+
     app.get('/categories',async(req,res)=>{
       const result=await query(queries.allCategory.text);
       res.json(result.rows);
     })
+
     
   } catch (error) {
     console.error("Database error:", error);

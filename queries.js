@@ -22,7 +22,12 @@ const queries = {
     text: `SELECT CATEGORY, JSON_AGG(COURSE_NAME) as COURSES 
            FROM COURSE 
            GROUP BY CATEGORY`
-  }
+  },
+  user:(user)=>({
+     text:`INSERT INTO "user"(user_name,email,profile_pic,reg_date,last_login_at,role) 
+           VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
+     values:[user.name,user.email,user.profilePic,user.reg_date,user.lastLogin,user.role],
+  })
 };
 
 module.exports={ queries };
