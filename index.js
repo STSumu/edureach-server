@@ -1,44 +1,48 @@
 const express = require("express");
 const cors = require("cors");
 const { pool, query } = require("./db");
+const { queries } = require("./queries");
 const app = express();
 app.use(cors());
 app.use(express.json());
 const port = process.env.PORT || 4000;
 
+
 async function run() {
   try {
     app.get("/users", async (req, res) => {
-      const sqlQuery = {
-        name: "fetch-user",
-        text: 'SELECT * FROM "user"',
-      };
-
-      const result = await query(sqlQuery.text);
+      const result = await query(queries.users.text);
       if (result.rows.length === 0) {
         return res.status(404).json({ message: "User not found" });
       }
 
       res.json(result.rows);
     });
+
+    app.post('/user',async(req,res)=>{
+      const user=req.body;
+    const { text, values } = queries.user(user);
+  const result = await query(text, values);
+      res.send(result.rows[0]);
+    })
+
     app.get('/courses',async(req,res)=>{
-      const fetchquery={
-        name:'fetch-courses',
-        text: 'SELECT * FROM COURSE',
-      }
-      const result=await query(fetchquery.text);
+      
+      const result=await query(queries.courses.text);
       res.json(result.rows);
     })
+
+
     app.get('/material/:courseName',async(req,res)=>{
       const courseName=req.params.courseName;
-      const q={
-        name:'material-query',
-        text:'SELECT M.* FROM MATERIAL M JOIN COURSE C ON(M.COURSE_ID=C.COURSE_ID) WHERE UPPER(C.COURSE_NAME)=UPPER($1)',
-        values:[courseName],
-      }
-      const result=await query(q.text,q.values);
+      
+      const result=await query(queries.material.text,queries.material.values);
       res.json(result.rows);
     })
+
+
+
+
     app.get('/user/:usertype',async(req,res)=>{
       const userType=req.params.usertype;
       const userquery={
@@ -48,14 +52,14 @@ async function run() {
       const result=await query(userquery.text);
       res.json(result.rows.length);
     })
+
+
+
     app.get('/categories',async(req,res)=>{
-      const q={
-        name:'allcategory',
-        text:'SELECT CATEGORY,JSON_AGG(COURSE_NAME) as COURSES FROM COURSE GROUP BY CATEGORY',
-      }
-      const result=await query(q.text);
+      const result=await query(queries.allCategory.text);
       res.json(result.rows);
     })
+
     
   } catch (error) {
     console.error("Database error:", error);
