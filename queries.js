@@ -4,7 +4,7 @@ const queries = {
   },
 
   courses: {
-    text: `SELECT c.*,u.user_name 
+    text: `SELECT c.*,u.user_name as instructor,u.profile_pic as instructorImg 
            FROM COURSE c 
            JOIN COURSE_REQUEST cr ON c.course_name = cr.course_name 
            JOIN "user" u ON cr.instructor_id = u.user_id`
