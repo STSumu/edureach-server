@@ -21,7 +21,9 @@ async function run() {
 
     app.post('/user',async(req,res)=>{
       const user=req.body;
+      console.log(req.body);
     const { text, values } = queries.user(user);
+    console.log(text,values);
   const result = await query(text, values);
       res.send(result.rows[0]);
     })
