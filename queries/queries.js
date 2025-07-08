@@ -11,7 +11,7 @@ const queries = {
            JOIN "user" u ON cr.instructor_id = u.user_id
            JOIN enrollment e ON e.course_id=c.course_id
            JOIN ratings r ON r.course_id=c.course_id
-           Group by c.course_id,u.user_name,u.profile_pic;`
+           Group by c.course_id,u.user_name,u.profile_pic;`,
   },
 
   material: (courseName) => ({
@@ -25,11 +25,12 @@ const queries = {
   allCategory: {
     text: `SELECT CATEGORY, JSON_AGG(COURSE_NAME) as COURSES 
            FROM COURSE 
-           GROUP BY CATEGORY`
+           GROUP BY CATEGORY`,
   },
-  user:(user)=>({
-     text:`INSERT INTO "user"(user_name,email,profile_pic,reg_date,last_login_at,role) 
+  user: (user) => ({
+    text: `INSERT INTO "user"(user_name,email,profile_pic,reg_date,last_login_at,role) 
            VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
+
      values:[user.name,user.email,user.profilePic,user.reg_date,user.lastLogin,user.role],
   }),
   dbUser:(userEmail)=>({
@@ -40,13 +41,47 @@ LEFT JOIN student s ON u.user_id = s.student_id AND u.role = 'student'
 WHERE LOWER(u.email) = LOWER($1);
      `,
      values:[userEmail],
-  })
+  }),
 
+  addToCart: (studentId, courseId) => ({
+    text: `SELECT add_to_cart($1, $2) AS cart_id;`,
+    values: [studentId, courseId],
+  }),
+  addToWishlist: (studentId, courseIds) => ({
+    text: `INSERT INTO wishlist (student_id, course_id)
+VALUES ($1,$2)
+ON CONFLICT DO NOTHING;`,
+    values: [studentId, courseIds],
+  }),
+
+  // 🔹 Get all cart items for a student
+  getCartContents: (studentId) => ({
+    text: `SELECT * FROM get_cart_contents($1);`,
+    values: [studentId],
+  }),
+
+  // 🔹 Get total cost of cart
+  getCartTotal: (studentId) => ({
+    text: `SELECT get_cart_total($1) AS total;`,
+    values: [studentId],
+  }),
+
+  // 🔹 Remove a specific course from cart
+  removeFromCart: (studentId, courseId) => ({
+    text: `SELECT remove_from_cart($1, $2) AS removed;`,
+    values: [studentId, courseId],
+  }),
+
+  // 🔹 Clear the whole cart for a student
+  clearCart: (studentId) => ({
+    text: `SELECT clear_cart($1) AS cleared;`,
+    values: [studentId],
+  }),
   // cart:(user)=>({
-  //    text:`INSERT INTO "user"(user_name,email,profile_pic,reg_date,last_login_at,role) 
+  //    text:`INSERT INTO "user"(user_name,email,profile_pic,reg_date,last_login_at,role)
   //          VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
   //    values:[user.name,user.email,user.profilePic,user.reg_date,user.lastLogin,user.role],
   // })
 };
 
-module.exports={ queries };
+module.exports = { queries };
