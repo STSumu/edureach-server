@@ -5,11 +5,13 @@ const { queries } = require('../queries/queries');
 
 router.post('/', async (req, res) => {
   try {
-    const courseName = req.params.courseName;
-    const { text, values } = queries.add_to_cart(courseName);
+    const stdid = req.body.userId;
+    const crsId = req.body.course_id;
+    const { text, values } = queries.addToCart(stdid, crsId);
     const result = await query(text, values);
-    res.json(result.rows);
+    res.send(result.rows[0]);
   } catch (err) {
+    console.error("🔥 Database or query error:", err); 
     res.status(500).json({ error: err.message });
   }
 });
