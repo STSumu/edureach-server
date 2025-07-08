@@ -28,6 +28,13 @@ async function run() {
       res.send(result.rows[0]);
     })
 
+  //   app.post('/cart/:course_name',async(req,res)=>{
+  //     const course=req.body;
+  //     console.log(req.body);
+  // const result = await query(text, values);
+  //     res.send(result.rows[0]);
+  //   })
+
     app.get('/courses',async(req,res)=>{
       
       const result=await query(queries.courses.text);

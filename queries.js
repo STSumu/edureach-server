@@ -4,10 +4,14 @@ const queries = {
   },
 
   courses: {
-    text: `SELECT c.*,u.user_name as instructor,u.profile_pic as instructorImg 
+    text: `SELECT c.*,u.user_name as instructor,u.profile_pic as instructorImg,count(e.student_id) as totalstudent,
+           avg(r.rating) as rating 
            FROM COURSE c 
            JOIN COURSE_REQUEST cr ON c.course_name = cr.course_name 
-           JOIN "user" u ON cr.instructor_id = u.user_id`
+           JOIN "user" u ON cr.instructor_id = u.user_id
+           JOIN enrollment e ON e.course_id=c.course_id
+           JOIN ratings r ON r.course_id=c.course_id
+           Group by c.course_id,u.user_name,u.profile_pic;`
   },
 
   material: (courseName) => ({
@@ -28,6 +32,12 @@ const queries = {
            VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
      values:[user.name,user.email,user.profilePic,user.reg_date,user.lastLogin,user.role],
   })
+
+  // cart:(user)=>({
+  //    text:`INSERT INTO "user"(user_name,email,profile_pic,reg_date,last_login_at,role) 
+  //          VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
+  //    values:[user.name,user.email,user.profilePic,user.reg_date,user.lastLogin,user.role],
+  // })
 };
 
 module.exports={ queries };
