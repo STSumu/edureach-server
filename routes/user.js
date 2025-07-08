@@ -29,13 +29,15 @@ router.get('/:userEmail', async (req, res) => {
 // POST a new user
 router.post('/', async (req, res) => {
   try {
-    const user = req.body;
+      const user=req.body;
     const { text, values } = queries.user(user);
-    const result = await query(text, values);
-    res.status(201).json(result.rows[0]);
+  const result = await query(text, values);
+      res.send(result.rows[0]);
   } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
+  console.error(err); // <---- Check this console output
+  res.status(500).json({ error: err.message });
+}
+
 });
 
 module.exports = router;
