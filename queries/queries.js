@@ -30,15 +30,19 @@ const queries = {
   user: (user) => ({
     text: `INSERT INTO "user"(user_name,email,profile_pic,reg_date,last_login_at,role) 
            VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
-    values: [
-      user.name,
-      user.email,
-      user.profilePic,
-      user.reg_date,
-      user.lastLogin,
-      user.role,
-    ],
+
+     values:[user.name,user.email,user.profilePic,user.reg_date,user.lastLogin,user.role],
   }),
+  dbUser:(userEmail)=>({
+     text:`SELECT *
+FROM "user" u
+LEFT JOIN instructor i ON u.user_id = i.instructor_id AND u.role = 'teacher'
+LEFT JOIN student s ON u.user_id = s.student_id AND u.role = 'student'
+WHERE LOWER(u.email) = LOWER($1);
+     `,
+     values:[userEmail],
+  }),
+
   addToCart: (studentId, courseId) => ({
     text: `SELECT add_to_cart($1, $2) AS cart_id;`,
     values: [studentId, courseId],

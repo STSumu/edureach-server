@@ -13,6 +13,18 @@ router.get('/', async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
+router.get('/:userEmail', async (req, res) => {
+  try {
+    const userEmail = req.params.userEmail;
+    const { text, values } = queries.dbUser(userEmail);
+    const result = await query(text, values);
+    if (result.rows.length === 0) return res.status(404).json({ message: 'No users found' });
+    res.json(result.rows[0]);
+  } 
+  catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
 
 // POST a new user
 router.post('/', async (req, res) => {

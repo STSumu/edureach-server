@@ -16,7 +16,7 @@ const categoriesRouter = require('./routes/categories');
 
 app.use('/users', usersRouter);
 app.use('/courses', coursesRouter);
-app.use('/material', materialsRouter);
+app.use('/materials', materialsRouter);
 // app.use('/user', userTypeRouter);
 app.use('/categories', categoriesRouter);
 
