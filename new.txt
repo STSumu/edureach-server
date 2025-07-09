@@ -1,0 +1,30 @@
+addToCart: (studentId, courseId) => ({
+    text: `SELECT add_to_cart($1, $2) AS cart_id;`,
+    values: [studentId, courseId],
+  }),
+
+  // 🔹 Get all cart items for a student
+  getCartContents: (studentId) => ({
+    text: `SELECT * FROM get_cart_contents($1);`,
+    values: [studentId],
+  }),
+
+  // 🔹 Get total cost of cart
+  getCartTotal: (studentId) => ({
+    text: `SELECT get_cart_total($1) AS total;`,
+    values: [studentId],
+  }),
+
+  // 🔹 Remove a specific course from cart
+  removeFromCart: (studentId, courseId) => ({
+    text: `SELECT remove_from_cart($1, $2) AS removed;`,
+    values: [studentId, courseId],
+  }),
+
+  // 🔹 Clear the whole cart for a student
+  clearCart: (studentId) => ({
+    text: `SELECT clear_cart($1) AS cleared;`,
+    values: [studentId],
+  })
+
+  
