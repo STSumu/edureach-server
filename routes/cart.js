@@ -16,4 +16,16 @@ router.post('/', async (req, res) => {
   }
 });
 
+router.get('/:userId',async(req,res)=>{
+  try{
+    const userId=req.params.userId;
+  const {text,values}=queries.getCartContents(userId);
+  const result=await query(text,values);
+  res.send(result.rows);
+  }
+  catch(err){
+    res.status(500).json({ error: err.message });
+  }
+})
+
 module.exports = router;
