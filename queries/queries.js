@@ -4,7 +4,7 @@ const queries = {
   },
 
   courses: {
-    text: `SELECT c.*,u.user_name as instructor,u.profile_pic as instructorImg,count(e.student_id) as totalstudent,
+    text: `SELECT c.*,u.user_name as instructor,u.profile_pic as instructorImg,count(e.student_id) as totalstudent,count(r.rating) as totalRatings,
            avg(r.rating) as rating 
            FROM COURSE c 
            JOIN COURSE_REQUEST cr ON c.course_name = cr.course_name 
