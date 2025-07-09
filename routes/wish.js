@@ -5,8 +5,10 @@ const { queries } = require('../queries/queries');
 
 router.get('/', async (req, res) => {
   try {
-    const result = await query(queries.courses.text);
-    res.json(result.rows);
+     const userId=req.params.userId;
+  const {text,values}=queries.get(userId);
+  const result=await query(text,values);
+  res.send(result.rows);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
