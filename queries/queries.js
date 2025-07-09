@@ -4,15 +4,44 @@ const queries = {
   },
 
   courses: {
-    text: `SELECT c.*,u.user_name as instructor,u.profile_pic as instructorImg,count(e.student_id) as totalstudent,
-           avg(r.rating) as rating 
-           FROM COURSE c 
-           JOIN COURSE_REQUEST cr ON c.course_name = cr.course_name 
-           JOIN "user" u ON cr.instructor_id = u.user_id
-           JOIN enrollment e ON e.course_id=c.course_id
-           JOIN ratings r ON r.course_id=c.course_id
-           Group by c.course_id,u.user_name,u.profile_pic;`,
-  },
+  text: `
+    SELECT 
+      c.category,
+      c.course_name,
+      AVG(r.rating) AS rating,
+      u.user_name AS instructor,
+      c.course_id,
+      c.duration,
+      c.price,
+      c.thumb_url,
+      u.profile_pic AS instructorImg
+    FROM course c
+    JOIN course_request cr ON c.course_name = cr.course_name
+    JOIN "user" u ON cr.instructor_id = u.user_id
+    JOIN enrollment e ON e.course_id = c.course_id
+    JOIN ratings r ON r.course_id = c.course_id
+    GROUP BY 
+      c.category, c.course_name, c.duration, c.price, c.thumb_url,c.course_id,
+      u.user_name, u.profile_pic;
+  `,
+},
+  getCourse:(courseId)=> ({
+    text: `SELECT 
+    c.*, 
+    u.user_name AS instructor,
+    u.profile_pic AS instructorImg,
+    COUNT(e.student_id) AS totalstudent,
+    COUNT(r.rating) AS totalRatings,
+    AVG(r.rating) AS rating 
+  FROM COURSE c 
+  JOIN COURSE_REQUEST cr ON c.course_name = cr.course_name 
+  JOIN "user" u ON cr.instructor_id = u.user_id
+  JOIN enrollment e ON e.course_id = c.course_id
+  JOIN ratings r ON r.course_id = c.course_id
+  WHERE c.course_id = ($1)
+  GROUP BY c.course_id, u.user_name, u.profile_pic;`,
+    values:[courseId]
+  }),
 
   material: (courseName) => ({
     text: `SELECT M.* 
@@ -57,6 +86,14 @@ ON CONFLICT DO NOTHING;`,
   // 🔹 Get all cart items for a student
   getCartContents: (studentId) => ({
     text: `SELECT * FROM get_cart_contents($1);`,
+    values: [studentId],
+  }),
+  getWishContents: (studentId) => ({
+    text: `SELECT w.*, c.course_name, c.price, c.category
+FROM wishlist w
+JOIN course c ON w.course_id = c.course_id
+WHERE w.student_id = ($1);
+`,
     values: [studentId],
   }),
 

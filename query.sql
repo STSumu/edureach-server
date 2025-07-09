@@ -42,6 +42,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+
 CREATE OR REPLACE FUNCTION cart_item_trigger_function()
 RETURNS TRIGGER AS $$
 DECLARE
@@ -165,27 +166,21 @@ END;
 $$ LANGUAGE plpgsql;
 
 -- Function to get cart contents for a student
-CREATE OR REPLACE FUNCTION get_cart_contents(p_student_id INTEGER)
+CREATE OR REPLACE FUNCTION get_cart_contents(p_student_id INT)
 RETURNS TABLE (
-    cart_id INTEGER,
-    course_id INTEGER,
-    course_title VARCHAR,
-    price DECIMAL(10,2),
-    total_items INTEGER
-) AS $$
+    cart_id INT,
+    course_id INT
+)
+AS $$
 BEGIN
     RETURN QUERY
     SELECT 
         ci.cart_id,
-        ci.course_id,
-        c.title as course_title,
-        ci.price,
-        COUNT(*)::INTEGER as total_items
+        ci.course_id
     FROM cart_item ci
     JOIN cart ct ON ci.cart_id = ct.cart_id
     JOIN course c ON ci.course_id = c.course_id
     WHERE ct.student_id = p_student_id
-    GROUP BY ci.cart_id, ci.course_id, c.title, ci.price
     ORDER BY ci.cart_id, ci.course_id;
 END;
 $$ LANGUAGE plpgsql;

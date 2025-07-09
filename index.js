@@ -14,6 +14,7 @@ const materialsRouter = require('./routes/materials');
 // const userTypeRouter = require('./routes/userType');
 const categoriesRouter = require('./routes/categories');
 const cartRouter = require('./routes/cart');
+const wishRouter = require('./routes/wish');
 
 app.use('/user', usersRouter);
 app.use('/courses', coursesRouter);
@@ -21,6 +22,7 @@ app.use('/materials', materialsRouter);
 // app.use('/user', userTypeRouter);
 app.use('/categories', categoriesRouter);
 app.use('/cart', cartRouter);
+app.use('/wish', wishRouter);
 
 app.get('/', (req, res) => {
   res.send('Hello World!');
