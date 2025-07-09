@@ -320,6 +320,3 @@ CREATE TRIGGER after_order_insert
     AFTER INSERT ON "order"
     FOR EACH ROW
     EXECUTE FUNCTION populate_order_items();
-
-
- 
