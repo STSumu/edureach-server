@@ -11,5 +11,15 @@ router.get('/', async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
+router.get('/:courseId', async (req, res) => {
+  try {
+    const courseId=req.params.courseId;
+    const {text,values}=queries.getCourse(courseId);
+    const result = await query(text,values);
+    res.json(result.rows);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
 
 module.exports = router;
