@@ -224,3 +224,102 @@ BEGIN
     RETURN TRUE;
 END;
 $$ LANGUAGE plpgsql;
+
+//Enrollment
+
+CREATE OR REPLACE FUNCTION insert_enrollments_on_payment_success()
+RETURNS TRIGGER AS $$
+BEGIN
+    -- Only act if payment.status changed from 'pending' to 'successful'
+    IF OLD.payment_status = 'pending' AND NEW.payment_status = 'successful' THEN
+        INSERT INTO enrollment (course_id, student_id)
+        SELECT oi.course_id, NEW.student_id
+        FROM order_item oi
+        WHERE oi.order_id = NEW.order_id;
+    END IF;
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+
+CREATE TRIGGER after_payment_success
+AFTER UPDATE ON payment
+FOR EACH ROW
+WHEN (OLD.payment_status = 'pending' AND NEW.payment_status = 'successful')
+EXECUTE FUNCTION insert_enrollments_on_payment_success();
+
+
+
+//payment
+CREATE OR REPLACE FUNCTION insert_payment_on_order_confirm()
+RETURNS TRIGGER AS $$
+DECLARE
+    v_total_amount NUMERIC;
+BEGIN
+    -- Step 1: Calculate total amount from order_item
+    SELECT SUM(price) INTO v_total_amount
+    FROM order_item
+    WHERE order_id = NEW.order_id;
+
+    -- Step 2: Insert into payment table with all 4 values
+    INSERT INTO payment (order_id, student_id, payment_method, amount)
+    VALUES (NEW.order_id, NEW.student_id, NEW.payment_method, v_total_amount);
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+
+
+
+CREATE TRIGGER after_order_status_update
+AFTER UPDATE ON "order"
+FOR EACH ROW
+WHEN (OLD.status = 'pending' AND NEW.status = 'confirmed')
+EXECUTE FUNCTION insert_payment_on_order_confirm();
+
+
+
+//order
+CREATE OR REPLACE FUNCTION populate_order_items() 
+RETURNS TRIGGER AS $$
+DECLARE
+    v_cart_id INTEGER;
+BEGIN
+    SELECT cart_id INTO v_cart_id
+    FROM cart
+    WHERE student_id = NEW.student_id
+    ORDER BY updated_at DESC
+    LIMIT 1;
+
+    IF v_cart_id IS NULL THEN
+        RAISE NOTICE 'No cart found for student %', NEW.student_id;
+        RETURN NEW;
+    END IF;
+
+    RAISE NOTICE 'Using cart_id = % for student_id = %', v_cart_id, NEW.student_id;
+
+    INSERT INTO order_item (order_id, course_id, price)
+    SELECT 
+        NEW.order_id,
+        ci.course_id,
+        ci.price
+    FROM cart_item ci
+    WHERE ci.cart_id = v_cart_id;
+
+    RAISE NOTICE 'Inserted into order_item from cart_id %', v_cart_id;
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+
+
+CREATE TRIGGER after_order_insert
+    AFTER INSERT ON "order"
+    FOR EACH ROW
+    EXECUTE FUNCTION populate_order_items();
+
+
+ 
