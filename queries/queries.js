@@ -43,12 +43,19 @@ const queries = {
     values:[courseId]
   }),
 
-  material: (courseName) => ({
+  material: (courseId) => ({
     text: `SELECT M.* 
            FROM MATERIAL M 
            JOIN COURSE C ON M.COURSE_ID = C.COURSE_ID 
-           WHERE UPPER(C.COURSE_NAME) = UPPER($1)`,
-    values: [courseName],
+           WHERE C.COURSE_ID = ($1)`,
+    values: [courseId],
+  }),
+  materialbyId: (matId) => ({
+    text: `SELECT M.*
+           FROM MATERIAL M 
+           JOIN COURSE C ON M.COURSE_ID = C.COURSE_ID 
+           WHERE M.MATERIAL_ID = ($1)`,
+    values: [matId],
   }),
 
   allCategory: {
