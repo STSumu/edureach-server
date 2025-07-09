@@ -47,8 +47,20 @@ const queries = {
     text: `SELECT M.* 
            FROM MATERIAL M 
            JOIN COURSE C ON M.COURSE_ID = C.COURSE_ID 
+<<<<<<< HEAD
            WHERE C.course_id= ($1)`,
     values: [courseId],
+=======
+           WHERE C.COURSE_ID = ($1)`,
+    values: [courseId],
+  }),
+  materialbyId: (matId) => ({
+    text: `SELECT M.*
+           FROM MATERIAL M 
+           JOIN COURSE C ON M.COURSE_ID = C.COURSE_ID 
+           WHERE M.MATERIAL_ID = ($1)`,
+    values: [matId],
+>>>>>>> 0ee6974f38ed17e3346c91e02a716285e2a4e1a6
   }),
 
   allCategory: {
