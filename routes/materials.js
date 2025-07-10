@@ -7,7 +7,6 @@ router.get("/:courseId", async (req, res) => {
   try {
     const courseId = req.params.courseId;
     const { text, values } = queries.material(courseId);
-
     const result = await query(text, values);
     res.json(result.rows);
   } catch (err) {

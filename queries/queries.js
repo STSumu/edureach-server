@@ -41,6 +41,7 @@ const queries = {
   WHERE c.course_id = ($1)
   GROUP BY c.course_id, u.user_name, u.profile_pic;`,
     values: [courseId],
+
   }),
 
   material: (courseId) => ({
@@ -66,15 +67,8 @@ const queries = {
   user: (user) => ({
     text: `INSERT INTO "user"(user_name,email,profile_pic,reg_date,last_login_at,role) 
            VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
+    values: [user.name, user.email, user.profilePic, user.reg_date, user.lastLogin, user.role],
 
-    values: [
-      user.name,
-      user.email,
-      user.profilePic,
-      user.reg_date,
-      user.lastLogin,
-      user.role,
-    ],
   }),
   dbUser: (userEmail) => ({
     text: `SELECT *
@@ -90,8 +84,12 @@ WHERE LOWER(u.email) = LOWER($1);
     text: `SELECT add_to_cart($1, $2) AS cart_id;`,
     values: [studentId, courseId],
   }),
+  addToOrder: (studentId, courseId) => ({
+    text: `SELECT add_to_order($1, $2) AS order_id`,
+    values: [studentId, courseId],
+  }),
   addToWishlist: (studentId, courseIds) => ({
-    text: `INSERT INTO wishlist (student_id, course_id)
+    text: `INSERT INTO wishlist(student_id, course_id)
 VALUES ($1,$2)
 ON CONFLICT DO NOTHING;`,
     values: [studentId, courseIds],
@@ -100,6 +98,14 @@ ON CONFLICT DO NOTHING;`,
   // 🔹 Get all cart items for a student
   getCartContents: (studentId) => ({
     text: `SELECT * FROM get_cart_contents($1);`,
+    values: [studentId],
+  }),
+  getOrderContents: (studentId) => ({
+    text: `SELECT * FROM get_order_contents($1);`,
+    values: [studentId],
+  }),
+  cancelOrder:(studentId)=>({
+    text: `SELECT * FROM cancel_order($1);`,
     values: [studentId],
   }),
   getWishContents: (studentId) => ({
