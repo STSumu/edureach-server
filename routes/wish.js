@@ -8,7 +8,6 @@ router.get('/:userId', async (req, res) => {
      const userId=req.params.userId;
   const {text,values}=queries.getWishContents(userId);
   const result=await query(text,values);
-  console.log(result.rows);
   res.send(result.rows);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -26,5 +25,17 @@ router.post('/', async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
+router.delete('/:stdId',async(req,res)=>{
+  try{
+    const userId=req.params.stdId;
+    const course_id=req.query.crsId;
+  const {text,values}=queries.removeFromCart(userId,course_id);
+  const result=await query(text,values);
+  res.send(result.rows);
+  }
+  catch(err){
+      res.status(500).json({ error: err.message });
+  }
+})
 
 module.exports = router;
