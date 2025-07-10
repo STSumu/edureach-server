@@ -4,7 +4,7 @@ const queries = {
   },
 
   courses: {
-  text: `
+    text: `
     SELECT 
       c.category,
       c.course_name,
@@ -24,8 +24,8 @@ const queries = {
       c.category, c.course_name, c.duration, c.price, c.thumb_url,c.course_id,
       u.user_name, u.profile_pic;
   `,
-},
-  getCourse:(courseId)=> ({
+  },
+  getCourse: (courseId) => ({
     text: `SELECT 
     c.*, 
     u.user_name AS instructor,
@@ -40,18 +40,14 @@ const queries = {
   JOIN ratings r ON r.course_id = c.course_id
   WHERE c.course_id = ($1)
   GROUP BY c.course_id, u.user_name, u.profile_pic;`,
-    values:[courseId]
+    values: [courseId],
   }),
 
   material: (courseId) => ({
     text: `SELECT M.* 
            FROM MATERIAL M 
            JOIN COURSE C ON M.COURSE_ID = C.COURSE_ID 
-<<<<<<< HEAD
            WHERE C.course_id= ($1)`,
-    values: [courseId],
-=======
-           WHERE C.COURSE_ID = ($1)`,
     values: [courseId],
   }),
   materialbyId: (matId) => ({
@@ -60,7 +56,6 @@ const queries = {
            JOIN COURSE C ON M.COURSE_ID = C.COURSE_ID 
            WHERE M.MATERIAL_ID = ($1)`,
     values: [matId],
->>>>>>> 0ee6974f38ed17e3346c91e02a716285e2a4e1a6
   }),
 
   allCategory: {
@@ -72,16 +67,23 @@ const queries = {
     text: `INSERT INTO "user"(user_name,email,profile_pic,reg_date,last_login_at,role) 
            VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
 
-     values:[user.name,user.email,user.profilePic,user.reg_date,user.lastLogin,user.role],
+    values: [
+      user.name,
+      user.email,
+      user.profilePic,
+      user.reg_date,
+      user.lastLogin,
+      user.role,
+    ],
   }),
-  dbUser:(userEmail)=>({
-     text:`SELECT *
+  dbUser: (userEmail) => ({
+    text: `SELECT *
 FROM "user" u
 LEFT JOIN instructor i ON u.user_id = i.instructor_id AND u.role = 'teacher'
 LEFT JOIN student s ON u.user_id = s.student_id AND u.role = 'student'
 WHERE LOWER(u.email) = LOWER($1);
      `,
-     values:[userEmail],
+    values: [userEmail],
   }),
 
   addToCart: (studentId, courseId) => ({
