@@ -10,8 +10,7 @@ router.post('/', async (req, res) => {
     const { text, values } = queries.addToCart(stdid, crsId);
     const result = await query(text, values);
     res.send(result.rows[0]);
-  } catch (err) {
-    console.error("🔥 Database or query error:", err); 
+  } catch (err) { 
     res.status(500).json({ error: err.message });
   }
 });
@@ -25,6 +24,29 @@ router.get('/:userId',async(req,res)=>{
   }
   catch(err){
     res.status(500).json({ error: err.message });
+  }
+});
+router.get('/total/:userId',async(req,res)=>{
+  try{
+    const userId=req.params.userId;
+  const {text,values}=queries.getCartTotal(userId);
+  const result=await query(text,values);
+  res.send(result.rows);
+  }
+  catch(err){
+    res.status(500).json({ error: err.message });
+  }
+});
+router.delete('/:stdId',async(req,res)=>{
+  try{
+    const userId=req.params.stdId;
+    const course_id=req.query.crsId;
+  const {text,values}=queries.removeFromCart(userId,course_id);
+  const result=await query(text,values);
+  res.send(result.rows);
+  }
+  catch(err){
+      res.status(500).json({ error: err.message });
   }
 })
 
