@@ -40,14 +40,15 @@ const queries = {
   JOIN ratings r ON r.course_id = c.course_id
   WHERE c.course_id = ($1)
   GROUP BY c.course_id, u.user_name, u.profile_pic;`,
-    values: [courseId]
+    values: [courseId],
+
   }),
 
   material: (courseId) => ({
     text: `SELECT M.* 
            FROM MATERIAL M 
            JOIN COURSE C ON M.COURSE_ID = C.COURSE_ID 
-           WHERE C.COURSE_ID = ($1)`,
+           WHERE C.course_id= ($1)`,
     values: [courseId],
   }),
   materialbyId: (matId) => ({
@@ -66,8 +67,8 @@ const queries = {
   user: (user) => ({
     text: `INSERT INTO "user"(user_name,email,profile_pic,reg_date,last_login_at,role) 
            VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
-
     values: [user.name, user.email, user.profilePic, user.reg_date, user.lastLogin, user.role],
+
   }),
   dbUser: (userEmail) => ({
     text: `SELECT *
