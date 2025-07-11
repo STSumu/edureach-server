@@ -122,6 +122,27 @@ WHERE w.student_id = ($1);
     text: `SELECT get_cart_total($1) AS total;`,
     values: [studentId],
   }),
+  getOrderTotal: (studentId,status) => ({
+    text: `SELECT get_order_total($1,$2) AS total;`,
+    values: [studentId,status],
+  }),
+  confirmOrder:(studentId,method)=>({
+    text: `SELECT confirm_order($1,$2) AS orderId;`,
+    values: [studentId,method],
+  }),
+  updatePayment:(orderId,payStatus)=>({
+    text: `UPDATE payment
+SET payment_status = $2
+WHERE order_id = $1`,
+    values: [orderId,payStatus],
+  }),
+  getPayment:(studentId)=>({
+    text: `Select * from payment
+Where payment_status = 'pending' and
+ student_id = $1`,
+    values: [studentId],
+  }),
+
 
   // 🔹 Remove a specific course from cart
   removeFromCart: (studentId, courseId) => ({

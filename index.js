@@ -16,6 +16,7 @@ const categoriesRouter = require('./routes/categories');
 const cartRouter = require('./routes/cart');
 const wishRouter = require('./routes/wish');
 const orderRouter=require('./routes/order');
+const payRouter=require('./routes/pay');
 
 app.use('/user', usersRouter);
 app.use('/courses', coursesRouter);
@@ -25,6 +26,7 @@ app.use('/categories', categoriesRouter);
 app.use('/cart', cartRouter);
 app.use('/wish', wishRouter);
 app.use('/order',orderRouter);
+app.use('/pay',payRouter);
 
 app.get('/', (req, res) => {
   res.send('Hello World!');
