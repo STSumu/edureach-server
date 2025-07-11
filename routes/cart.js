@@ -37,6 +37,21 @@ router.get('/total/:userId',async(req,res)=>{
     res.status(500).json({ error: err.message });
   }
 });
+router.delete('/clear',async(req,res)=>{
+  try{
+    const {stdId}=req.body;
+  const {text,values}=queries.clearCart(stdId);
+  const result=await query(text,values);
+  if (result.rowCount > 0) {
+      res.json({ success: true, deletedRows: result.rowCount });
+    } else {
+      res.json({ success: false, message: 'No items to delete' });
+    }
+  }
+  catch(err){
+      res.status(500).json({ error: err.message });
+  }
+})
 router.delete('/:stdId',async(req,res)=>{
   try{
     const userId=req.params.stdId;
@@ -49,5 +64,6 @@ router.delete('/:stdId',async(req,res)=>{
       res.status(500).json({ error: err.message });
   }
 })
+
 
 module.exports = router;

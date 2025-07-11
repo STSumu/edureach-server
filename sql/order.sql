@@ -148,34 +148,39 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-create or replace function get_order_contents(p_student_id INTEGER) RETURNS table (
+CREATE OR REPLACE FUNCTION get_order_contents(
+  p_student_id INTEGER,
+)
+RETURNS TABLE (
   order_id INTEGER,
   course_id INTEGER,
   course_name VARCHAR,
   price DECIMAL(10, 2),
   status order_status,
   ordered_at TIMESTAMP
-) as $$
+) AS $$
 BEGIN
-    RETURN QUERY
-    SELECT 
-        oi.order_id,
-        oi.course_id,
-        c.course_name,
-        oi.price,
-        o.status,
-        o.ordered_at
-    FROM order_item oi
-    JOIN "order" o ON oi.order_id = o.order_id
-    JOIN course c ON oi.course_id = c.course_id
-    WHERE o.student_id = p_student_id
-    ORDER BY o.ordered_at DESC, oi.course_id;
+  RETURN QUERY
+  SELECT 
+    oi.order_id,
+    oi.course_id,
+    c.course_name,
+    oi.price,
+    o.status,
+    o.ordered_at
+  FROM order_item oi
+  JOIN "order" o ON oi.order_id = o.order_id
+  JOIN course c ON oi.course_id = c.course_id
+  WHERE o.student_id = p_student_id
+  ORDER BY o.ordered_at DESC, oi.course_id;
 END;
 $$ LANGUAGE plpgsql;
 
-create or replace function get_order_total (
+
+
+create or replace function get_order_total(
   p_student_id INTEGER,
-  p_status VARCHAR default 'pending'
+  p_status order_status default 'pending'
 ) RETURNS DECIMAL(10, 2) as $$
 DECLARE
     v_total DECIMAL(10,2) := 0;
@@ -190,9 +195,9 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-create or replace function confirm_order (
+create or replace function confirm_order(
   p_student_id INTEGER,
-  p_payment_method VARCHAR default 'online'
+  p_payment_method pay_meth default 'online'
 ) RETURNS INTEGER as $$
 DECLARE
     v_order_id INTEGER;
