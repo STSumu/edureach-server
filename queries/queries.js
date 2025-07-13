@@ -95,6 +95,17 @@ ON CONFLICT DO NOTHING;`,
     values: [studentId, courseIds],
   }),
 
+  checkEnroll: (studentId,courseId)=>(
+    {
+      text:`SELECT EXISTS (
+    SELECT 1 
+    FROM ENROLLMENT 
+    WHERE student_id = $1 AND course_id = $2
+  ) AS enrolled`,
+      values:[studentId,courseId],
+    }
+  ),
+
   // 🔹 Get all cart items for a student
   getCartContents: (studentId) => ({
     text: `SELECT * FROM get_cart_contents($1);`,

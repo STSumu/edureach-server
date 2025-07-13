@@ -17,6 +17,7 @@ const cartRouter = require('./routes/cart');
 const wishRouter = require('./routes/wish');
 const orderRouter=require('./routes/order');
 const payRouter=require('./routes/pay');
+const enrollRouter=require('./routes/Enrolled')
 
 app.use('/user', usersRouter);
 app.use('/courses', coursesRouter);
@@ -27,6 +28,7 @@ app.use('/cart', cartRouter);
 app.use('/wish', wishRouter);
 app.use('/order',orderRouter);
 app.use('/pay',payRouter);
+app.use('/enroll',enrollRouter);
 
 app.get('/', (req, res) => {
   res.send('Hello World!');
