@@ -5,10 +5,15 @@ RETURNS TRIGGER AS $$
 BEGIN
     -- Only act if payment.status changed from 'pending' to 'successful'
     IF OLD.payment_status = 'pending' AND NEW.payment_status = 'successful' THEN
+        -- Insert into enrollment only if the student is not already enrolled in the course
         INSERT INTO enrollment (course_id, student_id)
         SELECT oi.course_id, NEW.student_id
         FROM order_item oi
-        WHERE oi.order_id = NEW.order_id;
+        WHERE oi.order_id = NEW.order_id
+          AND NOT EXISTS (
+              SELECT 1 FROM enrollment e
+              WHERE e.student_id = NEW.student_id AND e.course_id = oi.course_id
+          );
     END IF;
 
     RETURN NEW;
