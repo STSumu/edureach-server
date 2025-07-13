@@ -95,14 +95,10 @@ ON CONFLICT DO NOTHING;`,
     values: [studentId, courseIds],
   }),
 
-  checkEnroll: (studentId,courseId)=>(
+  getEnrollCourses: (studentId)=>(
     {
-      text:`SELECT EXISTS (
-    SELECT 1 
-    FROM ENROLLMENT 
-    WHERE student_id = $1 AND course_id = $2
-  ) AS enrolled`,
-      values:[studentId,courseId],
+      text:`select JSON_AGG(course_id) as mycourses from enrollment where student_id=$1;`,
+      values:[studentId],
     }
   ),
 
