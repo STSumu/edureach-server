@@ -6,17 +6,10 @@ const {queries}=require('../queries/queries');
 router.post('/', async (req, res) => {
   try{
     const userId=req.body.userId;
-    const courses=req.body.courses;
-    let orderId;
-    for(const item of courses){
-       const { courseId }=item;
+    const courseId=req.body.courseId;
        const {text,values}=queries.addToOrder(userId,courseId);
        const result=await query(text,values);
-       if (!orderId) {
-        orderId = result.rows[0].order_id;
-      }
-    }
-    res.send({order_id:orderId}); 
+    res.send(result.rows[0]); 
   }
   catch(err){
        res.status(500).json({ error: err.message });
