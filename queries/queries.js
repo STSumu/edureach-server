@@ -281,6 +281,18 @@ createThread: (courseId, userId, title) => ({
     }),
   },
 
+   startQuiz: (courseId) => ({
+      text: `SELECT qs.quiz_text
+    FROM quiz q
+      JOIN question qs ON q.quiz_id = qs.quiz_id
+      WHERE q.course_id = $1
+      ORDER BY q.quiz_id ASC, qs.ques_id ASC;`,
+      values: [courseId],
+    }),
+
+    
+  
+
 
 
 };
