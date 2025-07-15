@@ -43,13 +43,16 @@ const queries = {
     values: [courseId],
   }),
 
-  material: (courseId) => ({
-    text: `SELECT M.* 
-           FROM MATERIAL M 
-           JOIN COURSE C ON M.COURSE_ID = C.COURSE_ID 
-           WHERE C.course_id= ($1)`,
-    values: [courseId],
-  }),
+ material: (courseId, studentId) => ({
+  text: `
+    SELECT M.*, islocked(M.material_id, $2) AS islocked
+    FROM MATERIAL M 
+    JOIN COURSE C ON M.COURSE_ID = C.COURSE_ID 
+    WHERE C.course_id = $1
+    ORDER BY M."order";
+  `,
+  values: [courseId, studentId],
+}),
   materialbyId: (matId) => ({
     text: `SELECT M.*
            FROM MATERIAL M 
@@ -57,7 +60,17 @@ const queries = {
            WHERE M.MATERIAL_ID = ($1)`,
     values: [matId],
   }),
-
+  getMaterialWithAccess:(matId,studentId)=>({
+    text:`SELECT M.*,islocked($1,$2) as isLocked
+           FROM MATERIAL M 
+           JOIN COURSE C ON M.COURSE_ID = C.COURSE_ID 
+           WHERE M.MATERIAL_ID = ($1)`,
+    values:[matId,studentId]
+  }),
+  addToMatComplete:(studentId,matId)=>({
+    text:`SELECT matComplete($1,$2) as inserted`,
+    values:[studentId,matId],
+  }),
   allCategory: {
     text: `SELECT CATEGORY, JSON_AGG(COURSE_NAME) as COURSES 
            FROM COURSE 

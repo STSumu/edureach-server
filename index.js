@@ -22,6 +22,7 @@ const discussionRouter = require('./routes/discussion');
 const quizRouter=require('./routes/quiz');
 const questionRouter=require('./routes/question');
 
+
 app.use('/user', usersRouter);
 app.use('/courses', coursesRouter);
 app.use('/materials', materialsRouter);
