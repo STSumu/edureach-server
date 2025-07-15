@@ -99,11 +99,13 @@ VALUES ($1,$2)
 ON CONFLICT DO NOTHING;`,
     values: [studentId, courseIds],
   }),
+  getEnrollCourses: (studentId)=>(
+    {
+      text:`select JSON_AGG(course_id) as mycourses from enrollment where student_id=$1;`,
+      values:[studentId],
+    }
+  ),
 
-  getEnroll: (studentId) => ({
-    text: `select JSON_AGG(course_id) as mycourses from enrollment where student_id=$1;`,
-    values: [studentId],
-  }),
 
   // 🔹 Get all cart items for a student
   getCartContents: (studentId) => ({
