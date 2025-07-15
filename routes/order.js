@@ -4,17 +4,19 @@ const { query } = require('../db/db');
 const { queries } = require('../queries/queries');
 
 router.post('/', async (req, res) => {
-  try {
-    const userId = req.body.userId;
-    const courseId = req.body.courseId;
-    const { text, values } = queries.addToOrder(userId, courseId);
-    const result = await query(text, values);
-    res.send(result.rows[0]);
+  try{
+    const userId=req.body.userId;
+    const courseId=req.body.courseId;
+       const {text,values}=queries.addToOrder(userId,courseId);
+       const result=await query(text,values);
+    res.send(result.rows[0]); 
   }
-  catch (err) {
-    res.status(500).json({ error: err.message });
+  catch(err){
+       res.status(500).json({ error: err.message });
   }
 });
+
+
 router.get('/:userId', async (req, res) => {
   try {
     const userId = req.params.userId;
