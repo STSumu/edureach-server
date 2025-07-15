@@ -19,10 +19,13 @@ const orderRouter=require('./routes/order');
 const payRouter=require('./routes/pay');
 const enrollRouter=require('./routes/Enrolled')
 const discussionRouter = require('./routes/discussion');
+const quizRouter=require('./routes/quiz');
+const questionRouter=require('./routes/question');
 
 app.use('/user', usersRouter);
 app.use('/courses', coursesRouter);
 app.use('/materials', materialsRouter);
+app.use('/quiz',quizRouter);
 // app.use('/user', userTypeRouter);
 app.use('/categories', categoriesRouter);
 app.use('/cart', cartRouter);
@@ -31,6 +34,7 @@ app.use('/order',orderRouter);
 app.use('/pay',payRouter);
 app.use('/enroll',enrollRouter);
 app.use('/discussion', discussionRouter);
+app.use('/question',questionRouter);
 
 app.get('/', (req, res) => {
   res.send('Hello World!');
