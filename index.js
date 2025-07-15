@@ -20,6 +20,7 @@ const payRouter=require('./routes/pay');
 const enrollRouter=require('./routes/Enrolled')
 const discussionRouter = require('./routes/discussion');
 
+
 app.use('/user', usersRouter);
 app.use('/courses', coursesRouter);
 app.use('/materials', materialsRouter);
