@@ -1,3 +1,5 @@
+const { text } = require("express");
+
 const queries = {
   users: {
     text: 'SELECT * FROM "user"',
@@ -43,16 +45,16 @@ const queries = {
     values: [courseId],
   }),
 
- material: (courseId, studentId) => ({
-  text: `
+  material: (courseId, studentId) => ({
+    text: `
     SELECT M.*, islocked(M.material_id, $2) AS islocked
     FROM MATERIAL M 
     JOIN COURSE C ON M.COURSE_ID = C.COURSE_ID 
     WHERE C.course_id = $1
     ORDER BY M."order";
   `,
-  values: [courseId, studentId],
-}),
+    values: [courseId, studentId],
+  }),
   materialbyId: (matId) => ({
     text: `SELECT M.*
            FROM MATERIAL M 
@@ -60,16 +62,16 @@ const queries = {
            WHERE M.MATERIAL_ID = ($1)`,
     values: [matId],
   }),
-  getMaterialWithAccess:(matId,studentId)=>({
-    text:`SELECT M.*,islocked($1,$2) as isLocked
+  getMaterialWithAccess: (matId, studentId) => ({
+    text: `SELECT M.*,islocked($1,$2) as isLocked
            FROM MATERIAL M 
            JOIN COURSE C ON M.COURSE_ID = C.COURSE_ID 
            WHERE M.MATERIAL_ID = ($1)`,
-    values:[matId,studentId]
+    values: [matId, studentId]
   }),
-  addToMatComplete:(studentId,matId)=>({
-    text:`SELECT matComplete($1,$2) as inserted`,
-    values:[studentId,matId],
+  addToMatComplete: (studentId, matId) => ({
+    text: `SELECT matComplete($1,$2) as inserted`,
+    values: [studentId, matId],
   }),
   allCategory: {
     text: `SELECT CATEGORY, JSON_AGG(COURSE_NAME) as COURSES 
@@ -112,15 +114,14 @@ VALUES ($1,$2)
 ON CONFLICT DO NOTHING;`,
     values: [studentId, courseIds],
   }),
-  getEnrollCourses: (studentId)=>(
+  getEnrollCourses: (studentId) => (
     {
-      text:`select JSON_AGG(course_id) as mycourses from enrollment where student_id=$1;`,
-      values:[studentId],
+      text: `select JSON_AGG(course_id) as mycourses from enrollment where student_id=$1;`,
+      values: [studentId],
     }
   ),
 
 
-  // 🔹 Get all cart items for a student
   getCartContents: (studentId) => ({
     text: `SELECT * FROM get_cart_contents($1);`,
     values: [studentId],
@@ -141,8 +142,34 @@ WHERE w.student_id = ($1);
 `,
     values: [studentId],
   }),
+  getAnswers: (quizId) => (
+    {
+      text: `
+      Select JSON_AGG(
+  JSON_BUILD_OBJECT(
+    'quesId', que.ques_id,
+    'optionId', o.option_id
+  )
+) as answers,
+ q.total_mark as total
+from quiz q
+join question que on (q.quiz_id=que.quiz_id)
+join option o on (que.ques_id=o.ques_id)
+where o.is_correct=true and q.quiz_id=$1
+group by q.total_mark;
+      `,
+      values: [quizId],
+    }
+  ),
+  getAttempt:(quizId,studentId)=>({
+    text:`Select q.* 
+    from quiz_attempt q
+    join enrollment e on (e.enroll_id=q.enroll_id)
+    where e.student_id=$2 and q.quiz_id=$1;
+    `,
+    values:[quizId,studentId],
+  }),
 
-  // 🔹 Get total cost of cart
   getCartTotal: (studentId) => ({
     text: `SELECT get_cart_total($1) AS total;`,
     values: [studentId],
@@ -167,23 +194,35 @@ Where payment_status = 'pending' and
  student_id = $1`,
     values: [studentId],
   }),
-
-  // 🔹 Remove a specific course from cart
+  attemptQuiz:(quizId,enrollId,answers)=>({
+    text:`
+    `,
+    values:[quizId,enrollId,answers]
+  }),
+  getProgress:(studentId,courseId)=>({
+    text:`
+    SELECT
+  g.materials_completed,
+  g.total_materials,
+  g.quizzes_attempted,
+  g.total_quizzes,
+  g.quiz_average,
+  g.progress
+FROM get_progress_details($1,$2) AS g;
+    `,
+    values:[studentId,courseId],
+  }),
   removeFromCart: (studentId, courseId) => ({
     text: `SELECT remove_from_cart($1, $2) AS removed;`,
     values: [studentId, courseId],
   }),
 
-  // 🔹 Clear the whole cart for a student
+  
   clearCart: (studentId) => ({
     text: `SELECT clear_cart($1) AS cleared;`,
     values: [studentId],
   }),
-  // cart:(user)=>({
-  //    text:`INSERT INTO "user"(user_name,email,profile_pic,reg_date,last_login_at,role)
-  //          VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
-  //    values:[user.name,user.email,user.profilePic,user.reg_date,user.lastLogin,user.role],
-  // })
+  
 
 
 
@@ -203,7 +242,7 @@ Where payment_status = 'pending' and
 
 
 
-   discussion: {
+  discussion: {
     // // 🔹 Get all threads for a course
     // getThreads: (courseId) => ({
     //   text: `SELECT 
@@ -224,9 +263,9 @@ Where payment_status = 'pending' and
     //   ORDER BY dt.created_at DESC`,
     //   values: [courseId],
     // }),
-    getThreads:(courseId)=>({
-      text:`Select * from discussion_thread where course_id=$1`,
-      values:[courseId],
+    getThreads: (courseId) => ({
+      text: `Select * from discussion_thread where course_id=$1`,
+      values: [courseId],
     }),
     // 🔹 Get posts in a thread
     getPosts: (threadId) => ({
@@ -248,11 +287,11 @@ Where payment_status = 'pending' and
 
     // 🔹 Create new thread
     // 🔧 FIXED: Now takes userId separately
-createThread: (courseId, userId, title) => ({
-  text: `INSERT INTO discussion_thread (course_id, user_id, title, created_at, updated_at, status)
+    createThread: (courseId, userId, title) => ({
+      text: `INSERT INTO discussion_thread (course_id, user_id, title, created_at, updated_at, status)
          VALUES ($1, $2, $3, NOW(), NOW(), 'open') RETURNING *`,
-  values: [courseId, userId, title],
-}),
+      values: [courseId, userId, title],
+    }),
 
 
     // 🔹 Add first post to a thread
@@ -294,17 +333,17 @@ createThread: (courseId, userId, title) => ({
     }),
   },
 
-   startQuiz: (courseId) => ({
-      text: `SELECT qs.quiz_text
+  startQuiz: (courseId) => ({
+    text: `SELECT qs.quiz_text
     FROM quiz q
       JOIN question qs ON q.quiz_id = qs.quiz_id
       WHERE q.course_id = $1
       ORDER BY q.quiz_id ASC, qs.ques_id ASC;`,
-      values: [courseId],
-    }),
+    values: [courseId],
+  }),
 
-    
-  
+
+
 
 
 
