@@ -21,7 +21,9 @@ const enrollRouter=require('./routes/Enrolled')
 const discussionRouter = require('./routes/discussion');
 const quizRouter=require('./routes/quiz');
 const questionRouter=require('./routes/question');
-
+const quizAttemptRouter=require('./routes/quizattempt');
+const progressRouter=require('./routes/progress');
+const rateRouter=require('./routes/rate');
 
 app.use('/user', usersRouter);
 app.use('/courses', coursesRouter);
@@ -36,6 +38,9 @@ app.use('/pay',payRouter);
 app.use('/enroll',enrollRouter);
 app.use('/discussion', discussionRouter);
 app.use('/question',questionRouter);
+app.use('/quizattempt',quizAttemptRouter);
+app.use('/progress',progressRouter);
+app.use('/rate',rateRouter);
 
 app.get('/', (req, res) => {
   res.send('Hello World!');

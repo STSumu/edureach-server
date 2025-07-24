@@ -13,5 +13,19 @@ router.get("/:stdid", async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
+router.get("/status/:stdid",async(req,res)=>{
+  try{
+    const {stdid}=req.params;
+    const {courseId}=req.query;
+    const result=await query(
+      `select status from enrollment where course_id=$1 and student_id=$2;`,
+      [courseId,stdid],
+    )
+    res.send(result.rows[0]);
+  }
+  catch(err){
+    res.status(500).json({ error: err.message });
+  }
+})
 
 module.exports=router;
