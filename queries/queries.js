@@ -216,6 +216,7 @@ FROM get_progress_details($1,$2) AS g;
     text: `SELECT remove_from_cart($1, $2) AS removed;`,
     values: [studentId, courseId],
   }),
+  
 
   
   clearCart: (studentId) => ({

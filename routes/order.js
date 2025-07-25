@@ -2,10 +2,13 @@ const express = require('express');
 const router = express.Router();
 const { query } = require('../db/db');
 const { queries } = require('../queries/queries');
+const verifyFirebaseToken = require('./firebase/authMiddleware');
+
+router.use(verifyFirebaseToken);
 
 router.post('/', async (req, res) => {
   try{
-    const userId=req.body.userId;
+    const userId=req.user.user_id;
     const courseId=req.body.courseId;
        const {text,values}=queries.addToOrder(userId,courseId);
        const result=await query(text,values);
@@ -17,9 +20,9 @@ router.post('/', async (req, res) => {
 });
 
 
-router.get('/:userId', async (req, res) => {
+router.get('/', async (req, res) => {
   try {
-    const userId = req.params.userId;
+    const userId=req.user.user_id;
     const { text, values } = queries.getOrderContents(userId);
     const result = await query(text, values);
     res.send(result.rows);
@@ -29,9 +32,9 @@ router.get('/:userId', async (req, res) => {
   }
 });
 
-router.get('/total/:userId', async (req, res) => {
+router.get('/total', async (req, res) => {
   try {
-    const userId = req.params.userId;
+    const userId=req.user.user_id;
     const { text, values } = queries.getOrderTotal(userId, "pending");
     const result = await query(text, values);
     res.send(result.rows[0]);
@@ -41,18 +44,19 @@ router.get('/total/:userId', async (req, res) => {
   }
 });
 router.post('/cancel', async (req, res) => {
-  const { studentId } = req.body;
+  const userId=req.user.user_id;
   try {
-    const result = await query(queries.cancelOrder(studentId));
+    const result = await query(queries.cancelOrder(userId));
     res.json({ success: result.rowCount > 0 });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
 router.post('/confirm', async (req, res) => {
-  const { stdId, method } = req.body;
+  const userId=req.user.user_id;
+  const { method } = req.body;
   try {
-    const result = await query(queries.confirmOrder(stdId, method));
+    const result = await query(queries.confirmOrder(userId, method));
     res.send(result.rows[0]);
   } catch (err) {
     res.status(500).json({ error: err.message });
