@@ -1,5 +1,7 @@
 const express = require("express");
 const cors = require("cors");
+const verifyFirebaseToken = require("./routes/firebase/authMiddleware");
+
 const { pool, query } = require("./db/db");
 const { queries } = require("./queries/queries");
 const app = express();
@@ -24,6 +26,7 @@ const questionRouter=require('./routes/question');
 const quizAttemptRouter=require('./routes/quizattempt');
 const progressRouter=require('./routes/progress');
 const rateRouter=require('./routes/rate');
+const teachRouter=require('./routes/instructor/teach');
 
 app.use('/user', usersRouter);
 app.use('/courses', coursesRouter);
@@ -41,6 +44,7 @@ app.use('/question',questionRouter);
 app.use('/quizattempt',quizAttemptRouter);
 app.use('/progress',progressRouter);
 app.use('/rate',rateRouter);
+app.use('/teach',teachRouter);
 
 app.get('/', (req, res) => {
   res.send('Hello World!');

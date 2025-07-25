@@ -2,6 +2,9 @@ const express=require('express');
 const router=express.Router();
 const {query}=require('../db/db');
 const {queries }=require('../queries/queries');
+const verifyFirebaseToken = require('./firebase/authMiddleware');
+
+router.use(verifyFirebaseToken);
 
 router.patch('/',async(req,res)=>{
     try{
@@ -14,9 +17,10 @@ router.patch('/',async(req,res)=>{
         res.status(500).json({ error: err.message });
     }
 });
-router.get('/:stdId',async(req,res)=>{
+router.get('/',async(req,res)=>{
     try{
-        const {text,values}=queries.getPayment(req.params.stdId);
+        const stdId=req.user.user_id;
+        const {text,values}=queries.getPayment(stdId);
         const result=await query(text,values);
         res.send(result.rows);
     }
