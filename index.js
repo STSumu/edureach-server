@@ -45,7 +45,6 @@ app.use('/quizattempt',quizAttemptRouter);
 app.use('/progress',progressRouter);
 app.use('/rate',rateRouter);
 app.use('/teach',teachRouter);
-
 app.get('/', (req, res) => {
   res.send('Hello World!');
 });
