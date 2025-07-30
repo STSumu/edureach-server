@@ -120,5 +120,60 @@ router.post('/request',async(req,res)=>{
     console.error("Error syncing user:", err);
     res.status(500).json({ error: err.message });
   }
-})
+});
+router.post('/mat', async (req, res) => {
+  try {
+    const { title, order, link, type, courseId } = req.body;
+    const { uid } = req.user;
+
+    const teacherResult = await query(
+      `SELECT user_id FROM "user" WHERE firebase_uid = $1 AND role = 'teacher'`,
+      [uid]
+    );
+
+    if (teacherResult.rows.length === 0) {
+      return res.status(403).json({ error: "Unauthorized: not a teacher" });
+    }
+
+    const insertResult = await query(
+      `INSERT INTO material (course_id, title, "order", type, url)
+VALUES ($1, $2, $3, $4, $5)
+ON CONFLICT (course_id, "order")
+DO UPDATE SET
+  title = EXCLUDED.title,
+  type = EXCLUDED.type,
+  url = EXCLUDED.url,
+  updated_at = CURRENT_TIMESTAMP
+RETURNING *;`,[courseId, title, order, type, link]
+
+    );
+
+    res.status(201).json({ message: "Material uploaded", material: insertResult.rows[0] });
+  } catch (err) {
+    console.error("Error inserting material:", err);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+router.post('/quiz', async (req, res) => {
+  try {
+    const {courseId,quizTitle,questions}=req.body;
+    const { uid } = req.user;
+
+    const teacherResult = await query(
+      `SELECT user_id FROM "user" WHERE firebase_uid = $1 AND role = 'teacher'`,
+      [uid]
+    );
+
+    if (teacherResult.rows.length === 0) {
+      return res.status(403).json({ error: "Unauthorized: not a teacher" });
+    }
+    const result=await query(`select createQuiz($1,$2,$3) as quiz`,[courseId,quizTitle,JSON.stringify(questions)]);
+    res.send(result.rows[0]);
+  } catch (err) {
+    console.error("Error inserting material:", err);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+
 module.exports=router;
