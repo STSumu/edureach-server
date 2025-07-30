@@ -48,6 +48,7 @@ app.use('/rate',rateRouter);
 app.use('/teach',teachRouter);
 app.use('/admin',adminRouter);
 
+
 app.get('/', (req, res) => {
   res.send('Hello World!');
 });
