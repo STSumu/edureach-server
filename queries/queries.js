@@ -28,23 +28,22 @@ const queries = {
   `,
   },
   getCourse: (courseId) => ({
-    text: `SELECT 
-    c.*, 
+  text: `SELECT 
+    c.*,
     u.user_name AS instructor,
     u.profile_pic AS instructorImg,
-    COUNT(e.student_id) AS totalstudent,
-    COUNT(r.rating) AS totalRatings,
-    AVG(r.rating) AS rating 
-  FROM COURSE c 
-  JOIN COURSE_REQUEST cr ON c.course_name = cr.course_name 
-  JOIN "user" u ON cr.instructor_id = u.user_id
-  JOIN enrollment e ON e.course_id = c.course_id
-  JOIN ratings r ON r.course_id = c.course_id
-  WHERE c.course_id = ($1)
-  GROUP BY c.course_id, u.user_name, u.profile_pic;`,
-    values: [courseId],
-  }),
-
+    COALESCE(COUNT(DISTINCT e.student_id), 0) AS totalstudent,
+    COALESCE(COUNT(DISTINCT r.rating), 0) AS totalRatings,
+    COALESCE(AVG(r.rating), 0) AS rating
+   FROM COURSE c
+   JOIN COURSE_REQUEST cr ON c.course_name = cr.course_name
+   JOIN "user" u ON cr.instructor_id = u.user_id
+   LEFT JOIN enrollment e ON e.course_id = c.course_id
+   LEFT JOIN ratings r ON r.course_id = c.course_id
+   WHERE c.course_id = $1
+   GROUP BY c.course_id, u.user_name, u.profile_pic;`,
+  values: [courseId],
+}),
   material: (courseId, studentId) => ({
     text: `
     SELECT M.*, islocked(M.material_id, $2) AS islocked

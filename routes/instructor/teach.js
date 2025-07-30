@@ -64,48 +64,30 @@ if (isNaN(expYears)) expYears = 0;
     );
 
     res.json({ teacher:true, instructor_id: teacherUserId });
-    // console.log({ teacher:true, instructor_id: teacherUserId });
   } catch (err) {
     console.error("Error promoting to instructor:", err);
     res.status(500).send(err.message);
   }
 });
-router.get('/profile', verifyFirebaseToken, async (req, res) => {
-  try {
-    const { uid } = req.user;
-    const searchUser = await query(
-      `SELECT * FROM "user" WHERE firebase_uid = $1 AND role = 'student'`,
-      [uid]
-    );
-    const exist = searchUser.rows[0].firebase_uid;
-    const result = await query(
-      `SELECT user_id, user_name, email, profile_pic, role 
-       FROM "user" 
-       WHERE firebase_uid = $1 and role='teacher'`,
-      [exist]
-    );
 
-    if (result.rows.length === 0) {
-      return res.status(404).json({ message: 'User not found' });
-    }
-
-    res.send(result.rows[0]);
-  } catch (err) {
-    console.error("Error fetching profile:", err);
-    res.status(500).json({ error: err.message });
-  }
-});
 
 router.get('/',async(req,res)=>{
     try{
-        const userId = req.user.user_id;
+        const {uid} = req.user;
+        let teacherUser = await query(
+      `SELECT user_id FROM "user" WHERE firebase_uid = $1 AND role = 'teacher'`,
+      [uid]
+    );
+    if(teacherUser.rows[0].user_id){
+      const userId=teacherUser.rows[0].user_id;
         const result=await query(`select JSON_AGG(c.course_id) as mycourses
              from course c
-             join course_request cr on(c.request_id,cr.request_id) 
+             join course_request cr on(c.request_id=cr.request_id) 
              where cr.instructor_id=$1`,
             [userId]
         )
         res.send(result.rows[0]);
+      }
     }
     catch (err) {
     console.error("Error syncing user:", err);
