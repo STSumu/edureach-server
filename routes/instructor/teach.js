@@ -16,13 +16,12 @@ if (isNaN(expYears)) expYears = 0;
 
     // Find the student user
     const searchUser = await query(
-      `SELECT * FROM "user" WHERE firebase_uid = $1 AND role = 'student'`,
+      `SELECT * FROM "user" WHERE firebase_uid = $1`,
       [uid]
     );
     const exist = searchUser.rows[0];
     if (!exist) return res.status(404).json({ error: 'Student user not found' });
 
-    // Check if the teacher entry exists
     let teacherUser = await query(
       `SELECT user_id FROM "user" WHERE firebase_uid = $1 AND role = 'teacher'`,
       [uid]
@@ -65,6 +64,7 @@ if (isNaN(expYears)) expYears = 0;
     );
 
     res.json({ teacher:true, instructor_id: teacherUserId });
+    // console.log({ teacher:true, instructor_id: teacherUserId });
   } catch (err) {
     console.error("Error promoting to instructor:", err);
     res.status(500).send(err.message);
@@ -108,6 +108,33 @@ router.get('/',async(req,res)=>{
         res.send(result.rows[0]);
     }
     catch (err) {
+    console.error("Error syncing user:", err);
+    res.status(500).json({ error: err.message });
+  }
+})
+router.post('/request',async(req,res)=>{
+  try{
+    
+    const uid=req.user.uid;
+    let teacherUser = await query(
+      `SELECT user_id FROM "user" WHERE firebase_uid = $1 AND role = 'teacher'`,
+      [uid]
+    );
+    const userId=teacherUser.rows[0].user_id;
+    const req_at=new Date();
+    const {course_name,course_description,start_date,price,intro_url,course_image_url}=req.body;
+    const result = await query(`
+  INSERT INTO course_request (
+    instructor_id, requested_at, status, start_date, 
+    course_name, course_description, intro_url, req_price, img_url
+  ) 
+  VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) 
+  RETURNING request_id`,
+  [userId, req_at, 'pending', start_date, course_name, course_description, intro_url, price, course_image_url]
+);
+    res.send(result.rows[0]);
+  }
+  catch (err) {
     console.error("Error syncing user:", err);
     res.status(500).json({ error: err.message });
   }
