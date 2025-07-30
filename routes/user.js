@@ -125,6 +125,36 @@ router.get('/', async (req, res) => {
   }
 });
 
+router.put('/profile', verifyFirebaseToken, async (req, res) => {
+  try {
+    const { firstName, lastName, email, biography, facebook, instagram } = req.body;
+    const uid = req.user?.uid;
+
+    if (!uid) return res.status(401).json({ message: 'Unauthorized' });
+
+    const result = await query(
+      `SELECT user_id FROM "user" WHERE firebase_uid = $1`,
+      [uid]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    const user_id = result.rows[0].user_id;
+    const user_name = `${firstName} ${lastName}`;
+
+    await query(
+      queries.editProfile(user_name, email, biography, facebook, instagram, user_id)
+    );
+
+    res.status(200).json({ message: 'Profile updated successfully!' });
+  } catch (error) {
+    console.error('Error updating profile:', error);
+    res.status(500).json({ message: 'Server error updating profile' });
+  }
+});
+
 router.get('/:userEmail', async (req, res) => {
   try {
     const userEmail = req.params.userEmail;

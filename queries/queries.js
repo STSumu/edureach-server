@@ -342,7 +342,19 @@ FROM get_progress_details($1,$2) AS g;
     values: [courseId],
   }),
 
-
+  editProfile:(user_name,email,biography,facebook,instagram,user_id)=>({
+    text:`UPDATE public."user"
+  SET 
+    user_name = $1,      
+   email = $2,
+    biography = $3,
+    facebook = $4,
+    instagram = $5,
+    updated_at = CURRENT_TIMESTAMP
+  WHERE user_id = $6;
+  `,
+  values:[user_name,email,biography,facebook,instagram,user_id],
+  })
 
 
 
